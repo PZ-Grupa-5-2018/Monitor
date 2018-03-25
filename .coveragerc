@@ -1,10 +1,10 @@
 [run]
 omit =
-    event_manage/settings.py
-    event_manage/urls.py
-    event_manage/wsgi.py
-    event_manage/static/*
-    event_manage/templates/*
+    */settings.py
+    */urls.py
+    */wsgi.py
+    */static/*
+    */templates/*
     */apps.py
     */__init_.py
     manage.py
