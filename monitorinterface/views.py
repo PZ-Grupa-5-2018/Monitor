@@ -39,7 +39,7 @@ class MetricDetail(generics.RetrieveUpdateDestroyAPIView):
 class MeasurementList(APIView):
 
     def get(self, request, metric_id, format=None):
-        measurements = Metric.objects.filter(metric__id=metric_id)
+        measurements = Measurement.objects.filter(metric__id=metric_id)
         serializer = MeasurementSerializer(measurements, many=True)
         return Response(serializer.data)
 
