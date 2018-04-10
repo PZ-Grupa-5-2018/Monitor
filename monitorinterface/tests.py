@@ -83,7 +83,7 @@ class MetricListTest(TestCase):
         )
         
     
-    def test_MeasurementList_get(self):
+    def test_MeasurementList_post(self):
 #        print("I am in 4th test")
         response = self.client.post(reverse('metric_list', kwargs={'host_id': 1}), {'type':'Type1'},format='json')
         self.assertEqual(response.status_code, 201)
