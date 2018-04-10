@@ -14,21 +14,23 @@ class MetricListTest(TestCase):
 	def SetUp(self):
 		host_ip1 = '10.10.10.10'
 		host_ip2 = '10.10.10.11'
+#		host_ip1.save()
+#		host_ip2.save()
 	
 		
-		Host.objects.create(ip=host_ip1)
-		Host.objects.create(ip=host_ip2)
+		Host.objects.create(ip=host_ip1).save()
+		Host.objects.create(ip=host_ip2).save()
 		
-		Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='Type1', period_seconds = 5)
-		Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='Type2', period_seconds = 5)
-		Metric.objects.create(host=Host.objects.get(ip=host_ip2), type='Type1', period_seconds = 3)
+		Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='Type1', period_seconds = 5).save()
+		Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='Type2', period_seconds = 5).save()
+		Metric.objects.create(host=Host.objects.get(ip=host_ip2), type='Type1', period_seconds = 3).save()
 		
-		Measurement.objects.create(metric=Metric.objects.get(metric_id=1), value=1.0, timestamp='03-03-2018 01:01:01')
-		Measurement.objects.create(metric=Metric.objects.get(metric_id=1), value=1.0, timestamp='03-03-2018 01:01:01')
-		Measurement.objects.create(metric=Metric.objects.get(metric_id=2), value=3.0, timestamp='03-03-2018 01:01:01')
-		Measurement.objects.create(metric=Metric.objects.get(metric_id=2), value=4.0, timestamp='03-03-2018 01:01:01')
-		Measurement.objects.create(metric=Metric.objects.get(metric_id=3), value=1.1, timestamp='03-03-2018 01:01:01')
-		Measurement.objects.create(metric=Metric.objects.get(metric_id=3), value=1.667, timestamp='03-03-2018 01:01:01')
+		Measurement.objects.create(metric=Metric.objects.get(metric_id=1), value=1.0, timestamp='03-03-2018 01:01:01').save()
+		Measurement.objects.create(metric=Metric.objects.get(metric_id=1), value=1.0, timestamp='03-03-2018 01:01:01').save()
+		Measurement.objects.create(metric=Metric.objects.get(metric_id=2), value=3.0, timestamp='03-03-2018 01:01:01').save()
+		Measurement.objects.create(metric=Metric.objects.get(metric_id=2), value=4.0, timestamp='03-03-2018 01:01:01').save()
+		Measurement.objects.create(metric=Metric.objects.get(metric_id=3), value=1.1, timestamp='03-03-2018 01:01:01').save()
+		Measurement.objects.create(metric=Metric.objects.get(metric_id=3), value=1.667, timestamp='03-03-2018 01:01:01').save()
 		
 	def test_MetricList_get(self):
 		host_ip1 = '10.10.10.10'
