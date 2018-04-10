@@ -24,6 +24,14 @@ class MetricListTest(TestCase):
             str(response.content, encoding='utf8'),
             [{"id":1,"ip":"10.10.10.10"},{"id":2,"ip":"10.10.10.11"}]
         )
+	
+    def test_MeasurementList_get(self):
+        response = self.client.get(reverse('metric_list'),format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            [{"id":1,"ip":"10.10.10.10"},{"id":2,"ip":"10.10.10.11"}]
+        )
 
 
 
