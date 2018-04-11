@@ -123,16 +123,17 @@ class MetricListTest(TestCase):
     def test_MeasurementList_get(self):
         response = self.client.get(reverse('measurement_list', args=[1,1]),format='json')
         self.assertEqual(response.status_code, 200)
+        print(response.content)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {"id":1,"value":1.0,"timestamp":0}
+            [{"id":1,"value":1.0,"timestamp":"2018-04-11T18:52:17.863018Z"},{"id":2,"value":2.0,"timestamp":"2018-04-11T18:52:17.863520Z"}]
         )
    
-    '''
+    
     def test_MeasurementList_post(self):
-        response = self.client.post(reverse('measurement_list', args={'host_id':1, 'metric_id':1},format='json')
+        response = self.client.post(reverse('measurement_list', args=[1,1]),{'value':1.0},format='json')
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
             {"id":1,"value":1.0,"timestamp":0}
-        )'''
+        )
