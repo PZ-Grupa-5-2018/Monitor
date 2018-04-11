@@ -130,11 +130,11 @@ class MetricListTest(TestCase):
     
     def test_MeasurementList_post(self):
         
-        response = self.client.post(reverse('measurement_list', args=[1,1]),{'timestamp':'2018-04-11T18:52:17.863520Z'},format='json')
+        response = self.client.post(reverse('measurement_list', args=[1,1]), {'value':11.11,'timestamp':'2018-04-11T18:52:17.863520Z'},format='json')
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{"id":1,"value":1.0,"timestamp":"2018-04-11T18:52:17.863018Z"},{"id":2,"value":2.201,"timestamp":"2018-04-11T18:52:17.863520Z"}]
+            {'id': 3, 'value': 11.11, 'timestamp': '2018-04-11T18:52:17.863520Z'}
         )
         
         response = self.client.post(reverse('measurement_list', args=[5,5]),{'value':1.0},format='json')
