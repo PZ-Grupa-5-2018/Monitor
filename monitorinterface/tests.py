@@ -121,7 +121,7 @@ class MetricListTest(TestCase):
         )
     '''
     def test_MeasurementList_get(self):
-        response = self.client.get(reverse('measurement_list', args={'host_id':1, 'metric_id':1}),format='json')
+        response = self.client.get(reverse('measurement_list', args=[1,1]),format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
