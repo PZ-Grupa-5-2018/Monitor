@@ -27,16 +27,10 @@ class MetricListTest(TestCase):
         Metric.objects.create(host=Host.objects.get(ip=host_ip2), type='Type1', period_seconds=1).save()
 
         Measurement.objects.create(metric=Metric.objects.get(id=1), value=1.0, timestamp = timezone.now())
-        Measurement.objects.create(metric=Metric.objects.get(id=1), value=2.0, timestamp = timezone.now())
+        Measurement.objects.create(metric=Metric.objects.get(id=1), value=2.201, timestamp = timezone.now())
  
-        Measurement.objects.create(metric=Metric.objects.get(id=2), value=1.1, timestamp = timezone.now())
-        Measurement.objects.create(metric=Metric.objects.get(id=2), value=1.2, timestamp = timezone.now())
- 
-        Measurement.objects.create(metric=Metric.objects.get(id=2), value=1.11, timestamp = timezone.now())
-#        Measurement.objects.create(metric=Metric.objects.get(id=2), value=1.12, timestamp = timezone.now())
-    '''        
+            
     def test_HostList_get(self):
-#      print("I am in 1st test")
         response = self.client.get(reverse('hosts_list'),format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
@@ -45,7 +39,6 @@ class MetricListTest(TestCase):
         )
  
     def test_HostList_post(self):
-#        print("I am in 3rd test")
         response = self.client.post(reverse('hosts_list'),{'ip':'10.10.10.10'},format='json')
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
@@ -68,7 +61,6 @@ class MetricListTest(TestCase):
         )
  
     def test_MetricList_get(self):
-#        print("I am in 2nd test")
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 1}),format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
@@ -91,7 +83,6 @@ class MetricListTest(TestCase):
         )
    
     def test_MetricList_post(self):
-#        print("I am in 4th test")
         response = self.client.post(reverse('metric_list', kwargs={'host_id': 1}), {'type':'Type1'},format='json')
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
@@ -119,21 +110,39 @@ class MetricListTest(TestCase):
             str(response.content, encoding='utf8'),
             {"id":6,"type":"UnknownType","period_seconds":0}
         )
-    '''
+    
     def test_MeasurementList_get(self):
         response = self.client.get(reverse('measurement_list', args=[1,1]),format='json')
         self.assertEqual(response.status_code, 200)
         print(response.content)
+        '''
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{"id":1,"value":1.0,"timestamp":"2018-04-11T18:52:17.863018Z"},{"id":2,"value":2.0,"timestamp":"2018-04-11T18:52:17.863520Z"}]
+            [{"id":1,"value":1.0,"timestamp":"2018-04-11T18:52:17.863018Z"},{"id":2,"value":2.201,"timestamp":"2018-04-11T18:52:17.863520Z"}]
+        )'''
+        
+        
+        response = self.client.get(reverse('measurement_list', args=[2,3]),format='json')
+        self.assertEqual(response.status_code, 200)
+        print(response.content)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            []
         )
    
     
     def test_MeasurementList_post(self):
+        '''
         response = self.client.post(reverse('measurement_list', args=[1,1]),{'value':1.0},format='json')
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {"id":1,"value":1.0,"timestamp":0}
+            [{"id":1,"value":1.0,"timestamp":"2018-04-11T18:52:17.863018Z"},{"id":2,"value":2.201,"timestamp":"2018-04-11T18:52:17.863520Z"}]
+        )'''
+        
+        response = self.client.post(reverse('measurement_list', args=[5,5]),{'value':1.0},format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            {'timestamp': ['This field is required.']} 
         )
