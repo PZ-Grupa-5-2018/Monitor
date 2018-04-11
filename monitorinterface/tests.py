@@ -146,8 +146,8 @@ class MetricListTest(TestCase):
         
     def test_is_custom(self):
         
-        Metric.objects.create(host=Host.objects.create(ip='10.0.0.1'), type='cpu', period_seconds=5)
-        metric = Metric.objects.get(id=1)
+        Metric.objects.create(host=Host.objects.create(ip='10.0.0.1'), type='mean', period_seconds=5)
+        metric = Metric.objects.get(id=4)
         response = metric.is_custom
-        self.assertFalse(response)
+        self.assertTrue(response)
             
