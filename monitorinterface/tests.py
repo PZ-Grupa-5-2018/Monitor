@@ -65,14 +65,14 @@ class MetricListTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{"id":1,"type":"Type1","period_seconds":5},{"id":2,"type":"Type2","period_seconds":10}]
+            [{"id":1,'metric_id': 0,"type":"Type1","period_seconds":5},{"id":2,'metric_id': 0,"type":"Type2","period_seconds":10}]
         )
  
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 2}),format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{"id":3,"type":"Type1","period_seconds":1}]
+            [{"id":3,'metric_id': 0,"type":"Type1","period_seconds":1}]
         )
  
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 3}),format='json')
@@ -87,14 +87,14 @@ class MetricListTest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {"id":4,"type":"Type1","period_seconds":0}
+            {"id":4,'metric_id': 0,"type":"Type1","period_seconds":0}
         )
        
         response = self.client.post(reverse('metric_list', kwargs={'host_id': 2}), {'type':'Type1', 'type':'Type2'},format='json')
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {"id":5,"type":"Type2","period_seconds":0}
+            {"id":5,'metric_id': 0,"type":"Type2","period_seconds":0}
         )
        
         response = self.client.post(reverse('metric_list', kwargs={'host_id': 3}),format='json')
@@ -108,7 +108,7 @@ class MetricListTest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {"id":6,"type":"UnknownType","period_seconds":0}
+            {"id":6,'metric_id': 0,"type":"UnknownType","period_seconds":0}
         )
     
     def test_MeasurementList_get(self):

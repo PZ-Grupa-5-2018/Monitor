@@ -3,8 +3,8 @@ from monitorinterface.serializers import HostSerializer, MetricSerializer, Measu
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
-
+from django.shortcuts import get_object_or_404
+import math
 class HostList(generics.ListCreateAPIView):
     queryset = Host.objects.all()
     serializer_class = HostSerializer
@@ -39,9 +39,21 @@ class MetricDetail(generics.RetrieveUpdateDestroyAPIView):
 class MeasurementList(APIView):
 
     def get(self, request, metric_id, format=None):
-        measurements = Measurement.objects.filter(metric__id=metric_id)
-        serializer = MeasurementSerializer(measurements, many=True)
-        return Response(serializer.data)
+        metric=get_object_or_404(Metric,pk=metric_id)
+        if metric.is_custom:
+            parent_metric = get_object_or_404(Metric, pk=metric.metric_id)
+            measurements= Measurement.objects.filter(metric__id=metric.metric_id).order_by('-timestamp')
+            ms=[]
+            measurement_count = math.ceil(metric.period_seconds/parent_metric.period_seconds)
+            for index in range(len(measurements)-measurement_count+1):
+                value=sum(m.value for m in measurements[index:index+measurement_count])/measurement_count
+                ms.append(Measurement(value=value,timestamp=measurements[index].timestamp))
+            serializer = MeasurementSerializer(ms, many=True)
+            return Response(serializer.data)
+        else:
+            measurements = Measurement.objects.filter(metric__id=metric_id)
+            serializer = MeasurementSerializer(measurements, many=True)
+            return Response(serializer.data)
 
     def post(self, request, metric_id, format=None):
         serializer = MeasurementSerializer(data=request.data)

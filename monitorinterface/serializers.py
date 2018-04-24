@@ -11,10 +11,10 @@ class HostSerializer(serializers.ModelSerializer):
 class MetricSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metric
-        fields = ('id', 'type', 'period_seconds')
+        fields = ('id', 'type', 'metric_id', 'period_seconds')
 
 
 class MeasurementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Measurement
-        fields = ('id', 'value', 'timestamp')
+        fields = ( 'value', 'timestamp')
