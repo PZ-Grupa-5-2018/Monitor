@@ -21,10 +21,10 @@ class MetricListTest(TestCase):
         Host.objects.create(ip=host_ip2).save()
         Host.objects.create(ip=host_ip3).save()
         
-        Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='Type1', period_seconds=5).save()
-        Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='Type2', period_seconds=10).save()
+        Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='mean', period_seconds=5).save()
+        Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='mean', period_seconds=10).save()
 
-        Metric.objects.create(host=Host.objects.get(ip=host_ip2), type='Type1', period_seconds=1).save()
+        Metric.objects.create(host=Host.objects.get(ip=host_ip2), type='mean', period_seconds=1).save()
 
         Measurement.objects.create(metric=Metric.objects.get(id=1), value=1.0, timestamp = '2018-04-11T18:52:17.863018Z')
         Measurement.objects.create(metric=Metric.objects.get(id=1), value=2.201, timestamp = '2018-04-11T18:52:17.863520Z')
@@ -65,14 +65,14 @@ class MetricListTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{"id":1,'metric_id': 0,"type":"Type1","period_seconds":5},{"id":2,'metric_id': 0,"type":"Type2","period_seconds":10}]
+            [{"id":1,'metric_id': 0,"type":"mean","period_seconds":5},{"id":2,'metric_id': 0,"type":"mean","period_seconds":10}]
         )
  
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 2}),format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{"id":3,'metric_id': 0,"type":"Type1","period_seconds":1}]
+            [{"id":3,'metric_id': 0,"type":"mean","period_seconds":1}]
         )
  
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 3}),format='json')
@@ -83,18 +83,18 @@ class MetricListTest(TestCase):
         )
    
     def test_MetricList_post(self):
-        response = self.client.post(reverse('metric_list', kwargs={'host_id': 1}), {'type':'Type1'},format='json')
-        self.assertEqual(response.status_code, 201)
+        response = self.client.post(reverse('metric_list', kwargs={'host_id': 1}),format='json')
+        self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {"id":4,'metric_id': 0,"type":"Type1","period_seconds":0}
+            {"id":4,'metric_id': 0,"type":"mean","period_seconds":2}
         )
        
-        response = self.client.post(reverse('metric_list', kwargs={'host_id': 2}), {'type':'Type1', 'type':'Type2'},format='json')
+        response = self.client.post(reverse('metric_list', kwargs={'host_id': 2}), {'type':'mean', 'type':'mean'},format='json')
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {"id":5,'metric_id': 0,"type":"Type2","period_seconds":0}
+            {"id":5,'metric_id': 0,"type":"mean","period_seconds":2}
         )
        
         response = self.client.post(reverse('metric_list', kwargs={'host_id': 3}),format='json')
@@ -108,7 +108,7 @@ class MetricListTest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {"id":6,'metric_id': 0,"type":"UnknownType","period_seconds":0}
+            {"id":6,'metric_id': 0,"type":"UnknownType","period_seconds":2}
         )
     
     def test_MeasurementList_get(self):
@@ -116,8 +116,8 @@ class MetricListTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{"id":1,"value":1.0,"timestamp":"2018-04-11T18:52:17.863018Z"},{"id":2,"value":2.201,"timestamp":"2018-04-11T18:52:17.863520Z"}]
-        )
+            [{"value":1.0,"timestamp":"2018-04-11T18:52:17.863018Z"},{"value":2.201,"timestamp":"2018-04-11T18:52:17.863520Z"}]
+       )
         
         
         response = self.client.get(reverse('measurement_list', args=[2,3]),format='json')
@@ -134,7 +134,7 @@ class MetricListTest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {'id': 3, 'value': 11.11, 'timestamp': '2018-04-11T18:52:17.863520Z'}
+            {'value': 11.11, 'timestamp': '2018-04-11T18:52:17.863520Z'}
         )
         
         response = self.client.post(reverse('measurement_list', args=[5,5]),{'value':1.0},format='json')
