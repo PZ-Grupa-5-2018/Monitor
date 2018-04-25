@@ -21,7 +21,7 @@ class MetricListTest(TestCase):
         Host.objects.create(ip=host_ip2).save()
         Host.objects.create(ip=host_ip3).save()
         
-        Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='mean', period_seconds=5).save()
+        Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='Type1', period_seconds=5).save()
         Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='mean', period_seconds=10).save()
 
         Metric.objects.create(host=Host.objects.get(ip=host_ip2), type='mean', period_seconds=1).save()
@@ -65,7 +65,7 @@ class MetricListTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{"id":1,'metric_id': 0,"type":"mean","period_seconds":5},{"id":2,'metric_id': 0,"type":"mean","period_seconds":10}]
+            [{"id":1,'metric_id': 0,"type":"Type1","period_seconds":5},{"id":2,'metric_id': 0,"type":"mean","period_seconds":10}]
         )
  
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 2}),format='json')
@@ -83,14 +83,14 @@ class MetricListTest(TestCase):
         )
    
     def test_MetricList_post(self):
-        response = self.client.post(reverse('metric_list', kwargs={'host_id': 1}),format='json')
-        self.assertEqual(response.status_code, 200)
+        response = self.client.post(reverse('metric_list', kwargs={'host_id': 1}), {'type':'mean', "period_seconds":2},format='json')
+        self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
             {"id":4,'metric_id': 0,"type":"mean","period_seconds":2}
         )
        
-        response = self.client.post(reverse('metric_list', kwargs={'host_id': 2}), {'type':'mean', 'type':'mean'},format='json')
+        response = self.client.post(reverse('metric_list', kwargs={'host_id': 2}), {'type':'mean', "period_seconds":2},format='json')
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
@@ -101,10 +101,10 @@ class MetricListTest(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {'type': ['This field is required.']}
+            {'type': ['This field is required.'], 'period_seconds':['This field is required.']}
         )
  
-        response = self.client.post(reverse('metric_list', kwargs={'host_id': 3}),{'type':'UnknownType'},format='json')
+        response = self.client.post(reverse('metric_list', kwargs={'host_id': 3}),{'type':'UnknownType', 'period_seconds':2},format='json')
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
@@ -120,12 +120,12 @@ class MetricListTest(TestCase):
        )
         
         
-        response = self.client.get(reverse('measurement_list', args=[2,3]),format='json')
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(
-            str(response.content, encoding='utf8'),
-            []
-        )
+        #response = self.client.get(reverse('measurement_list', args=[2,3]),format='json')
+        #self.assertEqual(response.status_code, 200)
+        #self.assertJSONEqual(
+        #    str(response.content, encoding='utf8'),
+        #    []
+        #)
    
     
     def test_MeasurementList_post(self):
