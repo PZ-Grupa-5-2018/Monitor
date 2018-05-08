@@ -1,6 +1,6 @@
 from django.db import models
 
-
+CUSTOM_TYPES=['mean']
 class Host(models.Model):
     ip = models.CharField(max_length=15)
     mac = models.CharField(max_length=17)
@@ -17,7 +17,7 @@ class Metric(models.Model):
 
     @property
     def is_custom(self):
-        return self.type in ['mean']
+        return self.type in CUSTOM_TYPES
 
 
 class Measurement(models.Model):

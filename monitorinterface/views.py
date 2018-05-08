@@ -1,11 +1,11 @@
-from monitorinterface.models import Host, Metric, Measurement
+from monitorinterface.models import Host, Metric, Measurement,CUSTOM_TYPES
 from monitorinterface.serializers import HostSerializer, MetricSerializer, MeasurementSerializer
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 import math
-
+from django.utils import timezone
 
 class HostList(generics.ListCreateAPIView):
     serializer_class = HostSerializer
@@ -21,7 +21,7 @@ class HostList(generics.ListCreateAPIView):
     def filter_by_query_param(self, query_param):
         query = self.request.query_params.get(query_param, None)
         if query is not None:
-            filter_dict={query_param+"__icontains": query}
+            filter_dict = {query_param + "__icontains": query}
             self.queryset = self.queryset.filter(**filter_dict)
 
 
@@ -30,11 +30,18 @@ class HostDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = HostSerializer
 
 
-class MetricList(APIView):
-    def get(self, request, host_id, format=None):
-        metrics = Metric.objects.filter(host__id=host_id)
-        serializer = MetricSerializer(metrics, many=True)
-        return Response(serializer.data)
+class MetricList(generics.ListCreateAPIView):
+    serializer_class = MetricSerializer
+
+    def get_queryset(self):
+        queryset = Metric.objects.filter(host__id=self.kwargs['host_id'])
+        value = self.request.query_params.get("is_custom", None)
+        if value is not None:
+            if value in ['true', 't', 'True']:
+                queryset = queryset.filter(type__in=CUSTOM_TYPES)
+            else:
+                queryset = queryset.exclude(type__in=CUSTOM_TYPES)
+        return queryset
 
     def post(self, request, host_id, format=None):
         serializer = MetricSerializer(data=request.data)
@@ -60,13 +67,20 @@ class MeasurementList(APIView):
             measurement_count = math.ceil(metric.period_seconds / parent_metric.period_seconds)
             for index in range(len(measurements) - measurement_count + 1):
                 value = sum(m.value for m in measurements[index:index + measurement_count]) / measurement_count
-                ms.append(Measurement(value=value, timestamp=measurements[index].timestamp))
-            serializer = MeasurementSerializer(ms, many=True)
-            return Response(serializer.data)
+                ms.append(Measurement(value=value, timestamp=measurements[index].timestamp,id=index))
+
         else:
-            measurements = Measurement.objects.filter(metric__id=metric_id)
-            serializer = MeasurementSerializer(measurements, many=True)
-            return Response(serializer.data)
+            ms = Measurement.objects.filter(metric__id=metric_id)
+            since = self.request.query_params.get('since', None)
+            if since is not None:
+                ms = ms.filter(timestamp__gt=since)
+        count = self.request.query_params.get('count', None)
+        if count is None:
+            count=10
+        count=int(count)
+        ms = ms[:count]
+        serializer = MeasurementSerializer(ms, many=True)
+        return Response(serializer.data)
 
     def post(self, request, metric_id, format=None):
         serializer = MeasurementSerializer(data=request.data)
