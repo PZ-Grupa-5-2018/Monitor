@@ -10,16 +10,14 @@ from monitorinterface.serializers import HostSerializer, MetricSerializer, Measu
 from monitorinterface.views import MeasurementList, MetricList
 
 class MetricListTest(TestCase):
-    ''' Test module for MetricList model '''
 
     def setUp(self):
         host_ip1 = '10.10.10.10'
         host_ip2 = '10.10.10.11'
         host_ip3 = '10.10.10.12'
-        
-        Host.objects.create(ip=host_ip1).save()
-        Host.objects.create(ip=host_ip2).save()
-        Host.objects.create(ip=host_ip3).save()
+        Host.objects.create(cpu='Intel i3', ip=host_ip1, mac='00:0A:E6:3E:FD:E1', memory='32G', name='host1').save()
+        Host.objects.create(cpu='Intel i5', ip=host_ip2, mac='00:1A:E6:3E:FD:E1', memory='16G', name='host2').save()
+        Host.objects.create(cpu='Intel i7', ip=host_ip3, mac='00:2A:E6:3E:FD:E1', memory='8G', name='host3').save()
         
         Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='Type1', period_seconds=5).save()
         Metric.objects.create(host=Host.objects.get(ip=host_ip1), type='mean', period_seconds=10).save()
@@ -31,36 +29,73 @@ class MetricListTest(TestCase):
         Measurement.objects.create(metric=Metric.objects.get(id=1), value=1.0, timestamp = '2018-04-11T18:52:17.863018Z')
         Measurement.objects.create(metric=Metric.objects.get(id=1), value=2.201, timestamp = '2018-04-11T18:52:17.863520Z')
         Measurement.objects.create(metric=Metric.objects.get(id=3), value=5.111, timestamp = '2018-04-11T18:52:17.863520Z')
-            
-    def test_HostList_get(self):
+
+        
+    def test_HostList_get_queryset(self):
         response = self.client.get(reverse('hosts_list'),format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{"id":1,"ip":"10.10.10.10"},{"id":2,"ip":"10.10.10.11"},{"id":3,"ip":"10.10.10.12"}]
+            [{"id":1,"ip":"10.10.10.10", "cpu":"Intel i3", "mac":"00:0A:E6:3E:FD:E1", "memory":"32G", "name":"host1"},
+            {"id":2,"ip":"10.10.10.11", "cpu":"Intel i5", "mac":"00:1A:E6:3E:FD:E1", "memory":"16G", "name":"host2"},
+            {"id":3,"ip":"10.10.10.12", "cpu":"Intel i7", "mac":"00:2A:E6:3E:FD:E1", "memory":"8G", "name":"host3"}]
         )
- 
+    
+    def test_filter_by_query_param(self):
+        
+        response = self.client.get(reverse("hosts_list"), {"cpu":"Intel i3"}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            [{'cpu': 'Intel i3', 'id': 1, 'ip': '10.10.10.10', 'mac': '00:0A:E6:3E:FD:E1', 'memory': '32G', 'name': 'host1'}]
+        )
+
+       
+        response = self.client.get(reverse("hosts_list"), {"ip": "10.10.10.10"}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            [{'cpu': 'Intel i3', 'id': 1, 'ip': '10.10.10.10', 'mac': '00:0A:E6:3E:FD:E1', 'memory': '32G', 'name': 'host1'}]
+        )
+        
+        response = self.client.get(reverse("hosts_list"), {"memory":"32G"}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            [{'cpu': 'Intel i3', 'id': 1, 'ip': '10.10.10.10', 'mac': '00:0A:E6:3E:FD:E1', 'memory': '32G', 'name': 'host1'}]
+        )
+        
+        response = self.client.get(reverse("hosts_list"), {"name": "host1"}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            [{'cpu': 'Intel i3', 'id': 1, 'ip': '10.10.10.10', 'mac': '00:0A:E6:3E:FD:E1', 'memory': '32G', 'name': 'host1'}]
+        )
+        
+    
     def test_HostList_post(self):
-        response = self.client.post(reverse('hosts_list'),{'ip':'10.10.10.10'},format='json')
+        response = self.client.post(reverse("hosts_list"),{"ip":"10.10.10.10", "cpu":"Intel i3", "mac":"00:AA:E6:3E:FD:E1", "memory":"32G", "name":"host4"},format="json")
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {"id":4,"ip":"10.10.10.10"}
+            {"id":4,"ip":"10.10.10.10", "cpu":"Intel i3", "mac":"00:AA:E6:3E:FD:E1", "memory":"32G", "name":"host4"}
         )
  
-        response = self.client.post(reverse('hosts_list'),{'ip':'10.10.10.10', 'ip':'10.10.10.11'},format='json')
-        self.assertEqual(response.status_code, 201)
-        self.assertJSONEqual(
-            str(response.content, encoding='utf8'),
-            {"id":4,"ip":"10.10.10.10", "id":5,"ip":"10.10.10.11"}
-        )
+        #response = self.client.post(reverse('hosts_list'),{'ip':'10.10.10.10', 'ip':'10.10.10.11'},format='json')
+        #self.assertEqual(response.status_code, 201)
+        #self.assertJSONEqual(
+        #    str(response.content, encoding='utf8'),
+        #    {"id":4,"ip":"10.10.10.10", "id":5,"ip":"10.10.10.11"}
+        #)
  
         response = self.client.post(reverse('hosts_list'),format='json')
         self.assertEqual(response.status_code, 400)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {"ip":["This field is required."]}
+            {"ip":["This field is required."], "cpu":["This field is required."], 'mac': ['This field is required.'], 'memory': ['This field is required.'], 'name': ['This field is required.']}
         )
+ 
+
  
     def test_MetricList_get(self):
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 1}),format='json')
