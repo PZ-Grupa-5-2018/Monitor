@@ -81,13 +81,6 @@ class MetricListTest(TestCase):
             {"id":4,"ip":"10.10.10.10", "cpu":"Intel i3", "mac":"00:AA:E6:3E:FD:E1", "memory":"32G", "name":"host4"}
         )
  
-        #response = self.client.post(reverse('hosts_list'),{'ip':'10.10.10.10', 'ip':'10.10.10.11'},format='json')
-        #self.assertEqual(response.status_code, 201)
-        #self.assertJSONEqual(
-        #    str(response.content, encoding='utf8'),
-        #    {"id":4,"ip":"10.10.10.10", "id":5,"ip":"10.10.10.11"}
-        #)
- 
         response = self.client.post(reverse('hosts_list'),format='json')
         self.assertEqual(response.status_code, 400)
         self.assertJSONEqual(
