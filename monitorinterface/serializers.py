@@ -5,7 +5,7 @@ from monitorinterface.models import Host, Metric, Measurement
 class HostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Host
-        fields = ('id', 'ip')
+        fields = ('id', 'ip', 'mac', 'name', 'cpu', 'memory')
 
 
 class MetricSerializer(serializers.ModelSerializer):
@@ -17,4 +17,4 @@ class MetricSerializer(serializers.ModelSerializer):
 class MeasurementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Measurement
-        fields = ( 'value', 'timestamp')
+        fields = ('value', 'timestamp')
