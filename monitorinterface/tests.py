@@ -41,7 +41,7 @@ class MetricListTest(TestCase):
             {"id":3,"ip":"10.10.10.12", "cpu":"Intel i7", "mac":"00:2A:E6:3E:FD:E1", "memory":"8G", "name":"host3"}]
         )
     
-    def test_filter_by_query_param(self):
+    def test_HostList_filter_by_query_param(self):
         
         response = self.client.get(reverse("hosts_list"), {"cpu":"Intel i3"}, format='json')
         self.assertEqual(response.status_code, 200)
@@ -90,7 +90,7 @@ class MetricListTest(TestCase):
  
 
  
-    def test_MetricList_get(self):
+    def test_MetricList_get_queryset(self):
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 1}),format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
