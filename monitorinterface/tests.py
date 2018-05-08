@@ -97,6 +97,20 @@ class MetricListTest(TestCase):
             str(response.content, encoding='utf8'),
             [{"id":1,'metric_id': 0,"type":"Type1","period_seconds":5},{"id":2,'metric_id': 0,"type":"mean","period_seconds":10}]
         )
+        
+        response = self.client.get(reverse('metric_list', kwargs={'host_id': 1}),format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            [{"id":1,'metric_id': 0,"type":"Type1","period_seconds":5},{"id":2,'metric_id': 0,"type":"mean","period_seconds":10}]
+        )
+ 
+        response = self.client.get(reverse('metric_list', kwargs={'host_id': 2}),format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            [{'id': 3, 'metric_id': 0, 'period_seconds': 5, 'type': 'Type2'},{'id': 4, 'metric_id': 3, 'period_seconds': 1, 'type': 'mean'}]
+        )
  
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 2}),format='json')
         self.assertEqual(response.status_code, 200)
