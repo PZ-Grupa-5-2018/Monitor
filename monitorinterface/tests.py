@@ -112,11 +112,11 @@ class MetricListTest(TestCase):
             [{'id': 4, 'metric_id': 3, 'period_seconds': 1, 'type': 'mean'}]
         )
  
-        response = self.client.get(reverse('metric_list', kwargs={'host_id': 2}),format='json')
+        response = self.client.get(reverse('metric_list', kwargs={'host_id': 2}),{'is_custom':"True"},format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{'id': 3, 'type': 'Type2', 'metric_id': 0, 'period_seconds': 5}, {'id': 4, 'metric_id': 3, 'period_seconds': 1, 'type': 'mean'}]
+            [{'id': 4, 'metric_id': 3, 'period_seconds': 1, 'type': 'mean'}]
         )
  
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 3}),format='json')
