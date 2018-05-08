@@ -3,6 +3,10 @@ from django.db import models
 
 class Host(models.Model):
     ip = models.CharField(max_length=15)
+    mac = models.CharField(max_length=17)
+    name = models.CharField(max_length=20)
+    cpu = models.CharField(max_length=30)
+    memory = models.CharField(max_length=15)
 
 
 class Metric(models.Model):
