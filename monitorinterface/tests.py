@@ -41,7 +41,7 @@ class MetricListTest(TestCase):
             {"id":3,"ip":"10.10.10.12", "cpu":"Intel i7", "mac":"00:2A:E6:3E:FD:E1", "memory":"8G", "name":"host3"}]
         )
     
-    def test_filter_by_query_param(self):
+    def test_HostList_filter_by_query_param(self):
         
         response = self.client.get(reverse("hosts_list"), {"cpu":"Intel i3"}, format='json')
         self.assertEqual(response.status_code, 200)
@@ -90,12 +90,33 @@ class MetricListTest(TestCase):
  
 
  
-    def test_MetricList_get(self):
+    def test_MetricList_get_queryset(self):
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 1}),format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
             [{"id":1,'metric_id': 0,"type":"Type1","period_seconds":5},{"id":2,'metric_id': 0,"type":"mean","period_seconds":10}]
+        )
+
+        response = self.client.get(reverse('metric_list', kwargs={'host_id': 1}),{'is_custom':"False"},format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            [{'id': 1, 'metric_id': 0, 'period_seconds': 5, 'type': 'Type1'}]
+        )
+        
+        response = self.client.get(reverse('metric_list', kwargs={'host_id': 2}),format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            [{'id': 3, 'metric_id': 0, 'period_seconds': 5, 'type': 'Type2'},{'id': 4, 'metric_id': 3, 'period_seconds': 1, 'type': 'mean'}]
+        )
+ 
+        response = self.client.get(reverse('metric_list', kwargs={'host_id': 2}),{'is_custom':"True"},format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            [{'id': 4, 'metric_id': 3, 'period_seconds': 1, 'type': 'mean'}]
         )
  
         response = self.client.get(reverse('metric_list', kwargs={'host_id': 2}),format='json')
