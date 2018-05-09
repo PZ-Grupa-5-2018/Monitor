@@ -185,6 +185,7 @@ class MetricListTest(TestCase):
         )
 
     def test_MeasurementList_get(self):
+
         response = self.client.get(reverse('measurement_list', args=[1, 1]), format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
@@ -192,7 +193,12 @@ class MetricListTest(TestCase):
             [{"value": 1.0, "timestamp": "2018-04-11T18:52:17.863018Z"},
              {"value": 2.201, "timestamp": "2018-04-11T18:52:17.863520Z"}]
         )
-
+        response = self.client.get(reverse('measurement_list', args=[1, 1]), {'since': "2018-04-11T18:52:17.863519Z"},format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+             [{"value": 2.201, "timestamp": "2018-04-11T18:52:17.863520Z"}]
+        )
         response = self.client.get(reverse('measurement_list', args=[2, 4]), format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
