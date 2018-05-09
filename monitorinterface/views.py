@@ -24,6 +24,16 @@ class HostList(generics.ListCreateAPIView):
             filter_dict = {query_param + "__icontains": query}
             self.queryset = self.queryset.filter(**filter_dict)
 
+    def post(self, request, format=None):
+        serializer = HostSerializer(data=request.data)
+        if serializer.is_valid():
+            duplicates = Host.objects.filter(name=serializer.validated_data["name"]).filter(mac=serializer.validated_data["mac"])
+            if not duplicates:
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(HostSerializer(duplicates[0]).data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class HostDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Host.objects.all()
@@ -46,9 +56,13 @@ class MetricList(generics.ListCreateAPIView):
     def post(self, request, host_id, format=None):
         serializer = MetricSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.validated_data["host_id"] = host_id
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            duplicates = Metric.objects.filter(type=serializer.validated_data["type"])
+            if not duplicates:
+                serializer.validated_data["host_id"] = host_id
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(MetricSerializer(duplicates[0]).data, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
