@@ -176,7 +176,7 @@ class MetricListTest(TestCase):
             str(response.content, encoding='utf8'),
             {"id": 7, 'metric_id': 0, "type": "UnknownType", "period_seconds": 2}
         )
-        response = self.client.post(reverse('metric_list', kwargs={'host_id': 3}),
+        response = self.client.post(reverse('metric_list', kwargs={'host_id': 1}),
                                     {'type': 'memory', 'period_seconds': 2}, format='json')
         self.assertEqual(response.status_code, 202)
         self.assertJSONEqual(
