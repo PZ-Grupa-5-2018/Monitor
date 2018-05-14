@@ -56,7 +56,7 @@ class MetricList(generics.ListCreateAPIView):
     def post(self, request, host_id, format=None):
         serializer = MetricSerializer(data=request.data)
         if serializer.is_valid():
-            duplicates = Metric.objects.filter(type=serializer.validated_data["type"])
+            duplicates = Metric.objects.filter(type=serializer.validated_data["type"]).filter(host__id=host_id)
             if not duplicates:
                 serializer.validated_data["host_id"] = host_id
                 serializer.save()
