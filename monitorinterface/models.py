@@ -4,7 +4,7 @@ CUSTOM_TYPES=['mean']
 class Host(models.Model):
     ip = models.CharField(max_length=15)
     mac = models.CharField(max_length=17)
-    name = models.CharField(max_length=1000)
+    name = models.CharField(max_length=1000,unique=True)
     cpu = models.CharField(max_length=1000)
     memory = models.CharField(max_length=1000)
     platform = models.CharField(max_length=1000)
