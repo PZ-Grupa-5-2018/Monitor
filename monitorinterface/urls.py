@@ -19,7 +19,9 @@ from monitorinterface import views
 urlpatterns = [
     url(r'^hosts/$', views.HostList.as_view(),name="hosts_list"),
     url(r'^hosts/(?P<pk>[0-9]+)/$', views.HostDetail.as_view()),
+    url(r'^hosts/(?P<name>[\w]+)/$', views.HostDetail.as_view()),
     url(r'^hosts/(?P<host_id>[0-9]+)/metrics/$', views.MetricList.as_view(),name="metric_list"),
+    url(r'^hosts/(?P<host_name>[\w]+)/metrics/$', views.MetricList.as_view(), name="metric_list_string"),
     url(r'^hosts/([0-9]+)/metrics/(?P<pk>[0-9]+)/$', views.MetricDetail.as_view()),
-    url(r'^hosts/([0-9]+)/metrics/(?P<metric_id>[0-9]+)/measurements/$', views.MeasurementList.as_view(),name="measurement_list"),
+    url(r'^hosts/([0-9]+)/metrics/(?P<metric_id>[\w]+)/measurements/$', views.MeasurementList.as_view(),name="measurement_list"),
 ]

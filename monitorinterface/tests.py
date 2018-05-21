@@ -24,7 +24,7 @@ class MetricListTest(TestCase):
         Measurement.objects.create(metric=Metric.objects.get(id=1), value=2.201,
                                    timestamp='2018-04-11T18:52:17.863520Z')
         Measurement.objects.create(metric=Metric.objects.get(id=3), value=5.111,
-                                   timestamp='2018-04-11T18:52:17.863520Z')
+                                   timestamp='2019-04-11T18:52:17.863520Z')
 
     def test_HostList_get_queryset(self):
         response = self.client.get(reverse('hosts_list'), format='json')
@@ -70,6 +70,13 @@ class MetricListTest(TestCase):
             str(response.content, encoding='utf8'),
             [{'cpu': 'Intel i3', 'id': 1, 'ip': '10.10.10.10', 'mac': '00:0A:E6:3E:FD:E1', 'memory': '32G',
               'name': 'host1'}]
+        )
+        response = self.client.get(reverse("hosts_list"), {"active": "true"}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            [{'cpu': 'Intel i5', 'id': 2, 'ip': '10.10.10.11', 'mac': '00:1A:E6:3E:FD:E1', 'memory': '16G',
+              'name': 'host2'}]
         )
 
     def test_HostList_post(self):
@@ -203,7 +210,7 @@ class MetricListTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{'timestamp': '2018-04-11T18:52:17.863520Z', 'value': 5.111}]
+            [{'timestamp': '2019-04-11T18:52:17.863520Z', 'value': 5.111}]
 
         )
 

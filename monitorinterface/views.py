@@ -16,6 +16,12 @@ class HostList(generics.ListCreateAPIView):
         self.filter_by_query_param('ip')
         self.filter_by_query_param('cpu')
         self.filter_by_query_param('memory')
+        query = self.request.query_params.get("active", None)
+        if query is not None and query in ['true', 't', 'True']:
+            created_time = timezone.now() - timezone.timedelta(minutes=1)
+            metric_ids = set((o.metric.id for o in Measurement.objects.filter(timestamp__gt=created_time)))
+            host_ids= set((o.host.id for o in Metric.objects.filter(id__in=metric_ids)))
+            self.queryset = self.queryset.filter(id__in=host_ids)
         return self.queryset
 
     def filter_by_query_param(self, query_param):
@@ -38,13 +44,27 @@ class HostList(generics.ListCreateAPIView):
 class HostDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Host.objects.all()
     serializer_class = HostSerializer
+    lookup_fields =['pk','name']
 
+    def get_object(self):
+        queryset = self.get_queryset()
+        queryset = self.filter_queryset(queryset)
+        filter = {}
+        for field in self.lookup_fields:
+            if field in self.kwargs:
+                filter[field] = self.kwargs[field]
+        obj = get_object_or_404(queryset, **filter)  # Lookup the object
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 class MetricList(generics.ListCreateAPIView):
     serializer_class = MetricSerializer
 
     def get_queryset(self):
-        queryset = Metric.objects.filter(host__id=self.kwargs['host_id'])
+        if "host_id" in self.kwargs:
+            queryset = Metric.objects.filter(host__id=self.kwargs['host_id'])
+        else:
+            queryset = Metric.objects.filter(host__name=self.kwargs['host_name'])
         value = self.request.query_params.get("is_custom", None)
         if value is not None:
             if value in ['true', 't', 'True']:
@@ -53,12 +73,15 @@ class MetricList(generics.ListCreateAPIView):
                 queryset = queryset.exclude(type__in=CUSTOM_TYPES)
         return queryset
 
-    def post(self, request, host_id, format=None):
+    def post(self, request, *args, **kwargs):
         serializer = MetricSerializer(data=request.data)
         if serializer.is_valid():
             duplicates = Metric.objects.filter(type=serializer.validated_data["type"])
             if not duplicates:
-                serializer.validated_data["host_id"] = host_id
+                if "host_id" in kwargs:
+                    serializer.validated_data["host_id"] = kwargs["host_id"]
+                else:
+                    serializer.validated_data["host_id"] = get_object_or_404(Host, name=kwargs["host_name"]).id
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
@@ -69,7 +92,6 @@ class MetricList(generics.ListCreateAPIView):
 class MetricDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Metric.objects.all()
     serializer_class = MetricSerializer
-
 
 class MeasurementList(APIView):
     def get(self, request, metric_id, format=None):
