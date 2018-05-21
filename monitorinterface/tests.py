@@ -79,6 +79,15 @@ class MetricListTest(TestCase):
               'name': 'host2'}]
         )
 
+    def test_HostDetail_get(self):
+        response = self.client.get(reverse("hosts_detail", kwargs={'pk': 1}), format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            {'cpu': 'Intel i3', 'id': 1, 'ip': '10.10.10.10', 'mac': '00:0A:E6:3E:FD:E1', 'memory': '32G',
+             'name': 'host1'}
+        )
+
     def test_HostList_post(self):
         response = self.client.post(reverse("hosts_list"),
                                     {"ip": "10.10.10.10", "cpu": "Intel i3", "mac": "00:AA:E6:3E:FD:E1",
@@ -106,8 +115,16 @@ class MetricListTest(TestCase):
              'memory': ['This field is required.'], 'name': ['This field is required.']}
         )
 
+    def test_MetricDetail_get(self):
+        response = self.client.get(reverse("metric_detail", kwargs={'host_name': 'host1','pk':1}), format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            {'id': 1, 'metric_id': 0, 'period_seconds': 5, 'type': 'Type1'}
+        )
+
     def test_MetricList_get_queryset(self):
-        response = self.client.get(reverse('metric_list', kwargs={'host_id': 1}), format='json')
+        response = self.client.get(reverse('metric_list_name', kwargs={'host_name': "host1"}), format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
@@ -153,7 +170,7 @@ class MetricListTest(TestCase):
         )
 
     def test_MetricList_post(self):
-        response = self.client.post(reverse('metric_list', kwargs={'host_id': 1}),
+        response = self.client.post(reverse('metric_list_name', kwargs={'host_name': "host1"}),
                                     {'type': 'memory', "period_seconds": 2}, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertJSONEqual(
@@ -193,7 +210,7 @@ class MetricListTest(TestCase):
 
     def test_MeasurementList_get(self):
 
-        response = self.client.get(reverse('measurement_list', args=[1, 1]), format='json')
+        response = self.client.get(reverse('measurement_list', kwargs={'host_name':"host1", 'metric_name':"Type1"}), format='json')
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
