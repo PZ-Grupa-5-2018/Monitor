@@ -34,12 +34,11 @@ class HostList(generics.ListCreateAPIView):
     def post(self, request, format=None):
         serializer = HostSerializer(data=request.data)
         if serializer.is_valid():
-            duplicates = Host.objects.filter(name=serializer.validated_data["name"]).filter(
-                mac=serializer.validated_data["mac"])
-            if not duplicates:
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if "name" in request.data:
+            duplicates = Host.objects.filter(name=request.data["name"])
+            if duplicates:
                 return Response(HostSerializer(duplicates[0]).data, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
