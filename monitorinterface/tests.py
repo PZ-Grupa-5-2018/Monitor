@@ -214,8 +214,8 @@ class MetricListTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            [{"value": 1.0, "timestamp": "2018-04-11T18:52:17.863018Z"},
-             {"value": 2.201, "timestamp": "2018-04-11T18:52:17.863520Z"}]
+            [{"value": 2.201, "timestamp": "2018-04-11T18:52:17.863520Z"},
+              {"value": 1.0, "timestamp": "2018-04-11T18:52:17.863018Z"}]
         )
         response = self.client.get(reverse('measurement_list', args=[1, 1]), {'since': "2018-04-11T18:52:17.863519Z"},format='json')
         self.assertEqual(response.status_code, 200)

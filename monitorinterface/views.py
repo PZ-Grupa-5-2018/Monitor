@@ -148,7 +148,7 @@ class MeasurementList(APIView):
         if count is None:
             count = 10
         count = int(count)
-        ms = ms[:count]
+        ms = list(reversed(ms))[:count]
         serializer = MeasurementSerializer(ms, many=True)
         return Response(serializer.data)
 
