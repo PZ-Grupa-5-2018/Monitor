@@ -17,6 +17,7 @@ class HostList(generics.ListCreateAPIView):
         self.filter_by_query_param('ip')
         self.filter_by_query_param('cpu')
         self.filter_by_query_param('memory')
+        self.filter_by_query_param('mac')
         query = self.request.query_params.get("active", None)
         if query is not None and query in ['true', 't', 'True']:
             created_time = timezone.now() - timezone.timedelta(minutes=1)
