@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     # http://whitenoise.evans.io/en/stable/django.html#using-whitenoise-in-development
     'whitenoise.runserver_nostatic',
     'rest_framework',
+    'rest_framework_swagger',
     'monitorinterface',
     'django.contrib.staticfiles',
 ]
