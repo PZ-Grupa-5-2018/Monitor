@@ -118,13 +118,15 @@ class MetricDetail(MultiFilterDetail):
 
 
 class MeasurementList(APIView):
-    def get_metric_id(self):
+    def get_host_id(self):
         if "host_name" in self.kwargs:
-            host_id = get_object_or_404(Host, name=self.kwargs["host_name"]).id
+            return get_object_or_404(Host, name=self.kwargs["host_name"]).id
         else:
-            host_id = self.kwargs["host_id"]
+            return self.kwargs["host_id"]
+
+    def get_metric_id(self):
         if "metric_name" in self.kwargs:
-            return get_object_or_404(Metric, type=self.kwargs["metric_name"], host_id=host_id).id
+            return get_object_or_404(Metric, type=self.kwargs["metric_name"], host_id=self.get_host_id()).id
         else:
             return self.kwargs["metric_id"]
 
@@ -132,16 +134,18 @@ class MeasurementList(APIView):
         metric_id = self.get_metric_id()
         metric = get_object_or_404(Metric, pk=metric_id)
         if metric.is_custom:
-            parent_metric = get_object_or_404(Metric, pk=metric.metric_id)
-            measurements = Measurement.objects.filter(metric__id=metric.metric_id).order_by('-timestamp')
+            parent_metric = get_object_or_404(Metric, type=metric.metric_id,host_id=self.get_host_id())
+            measurements = Measurement.objects.filter(metric__id=parent_metric.id).order_by('-timestamp')
             ms = []
             measurement_count = math.ceil(metric.period_seconds / parent_metric.period_seconds)
-            for index in range(len(measurements) - measurement_count + 1):
+            for index in range(len(measurements)):
+
                 value = sum(m.value for m in measurements[index:index + measurement_count]) / measurement_count
+                print(measurement_count)
                 ms.append(Measurement(value=value, timestamp=measurements[index].timestamp, id=index))
 
         else:
-            ms = Measurement.objects.filter(metric__id=metric_id)
+            ms = Measurement.objects.filter(metric__id=metric_id).order_by('-timestamp')
             since = self.request.query_params.get('since', None)
             if since is not None:
                 ms = ms.filter(timestamp__gt=since)
@@ -149,7 +153,7 @@ class MeasurementList(APIView):
         if count is None:
             count = 10
         count = int(count)
-        ms = list(reversed(ms))[:count]
+        ms = list(ms)[:count]
         serializer = MeasurementSerializer(ms, many=True)
         return Response(serializer.data)
 
