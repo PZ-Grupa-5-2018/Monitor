@@ -14,7 +14,7 @@ class Metric(models.Model):
     host = models.ForeignKey(Host, on_delete=models.CASCADE, related_name="host")
     type = models.CharField(max_length=30)
     period_seconds = models.IntegerField()
-    metric_id = models.IntegerField(default=0)
+    metric_id = models.CharField(max_length=30,default="none")
 
     @property
     def is_custom(self):
