@@ -93,7 +93,7 @@ class MetricList(generics.ListCreateAPIView):
             else:
                 duplicates = Metric.objects.filter(type=serializer.validated_data["type"]).filter(
                     host__name=kwargs["host_name"])
-            if not duplicates:
+            if not duplicates or "mean"==serializer.validated_data["type"]:
                 if "host_id" in kwargs:
                     serializer.validated_data["host_id"] = kwargs["host_id"]
                 else:
@@ -139,9 +139,7 @@ class MeasurementList(APIView):
             ms = []
             measurement_count = math.ceil(metric.period_seconds / parent_metric.period_seconds)
             for index in range(len(measurements)):
-
                 value = sum(m.value for m in measurements[index:index + measurement_count]) / measurement_count
-                print(measurement_count)
                 ms.append(Measurement(value=value, timestamp=measurements[index].timestamp, id=index))
 
         else:
